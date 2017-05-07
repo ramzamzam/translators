@@ -1,12 +1,17 @@
 prog testProg
-head 
+head {
  fixed a
  fixed b, c, d
-body
+}
+body {
+if(a==b) {
+    b = c
+}
 read(a)
 read(b,c,d)
-if(a == b & b >= c) {
+if(a == b & b >= c | (c <= d & c != a )) {
 	print(d)
 	b = b / a * c
 } 
 for(d = 0 ; d < 10; d = d+1) b = b + 100.100
+}
