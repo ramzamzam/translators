@@ -1,0 +1,12 @@
+prog testProg
+head 
+ fixed a
+ fixed b, c, d
+body
+read(a)
+read(b,c,d)
+if(a == b & b >= c) {
+	print(d)
+	b = b / a * c
+} 
+for(d = 0 ; d < 10; d = d+1) b = b + 100.100
