@@ -1,17 +1,20 @@
-prog testProg
+prog op0
 head {
- fixed a
+ fixed forl
  fixed b, c, d
 }
 body {
+
 if(a==b) {
     b = c
 }
+a = 12
+b=244324.34324234234
 read(a)
 read(b,c,d)
 if(a == b & b >= c | (c <= d & c != a )) {
 	print(d)
 	b = b / a * c
 } 
-for(d = 0 ; d < 10; d = d+1) b = b + 100.100
+for(d = 0 ; d < 10; d = d+1) b = b +( 10
 }
