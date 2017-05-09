@@ -1,18 +1,19 @@
 prog op0
 head {
- fixed forl
- fixed b, c, d
+ fixed b, c, d,
+ fixec, x,v
 }
 body {
 
 if(a==b) {
     b = c
+    v = 100 + 1000/2*1234.34
 }
 a = 12
 b=244324.34324234234
 read(a)
 read(b,c,d)
-if(a == b & b >= c | (c <= d & c != a )) {
+if(a == b & b >= * c | [c <= d & c != a ]) {
 	print(d)
 	b = b / a * c
 } 
