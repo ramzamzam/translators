@@ -1,23 +1,23 @@
-prog op0
+prog l1lk
 head {
- fixed b, c, d,
- fixec, x,v
-}
-body {
-
+ fixed b, c, d, a
+} body {
+a = -10
 if(a==b) {
     b = c
-    v = 100 + 1000/2*1234.34
+    v = 100 + 1000/2*1234.34 - b
 }
-a = 12
+a = -b
 b= (244324.34324234234 - 100) - 10
 read(a)
 read(b,c,d)
-if( ! ! ! a + c*90 == b | [ [ a == b ] & [ b >= c ] ] | [ ( c - v ) == a ]) {
+if([a==b]|[b!=c]){
 	print(d)
-	b = b / a * c
+	b = b / a * c + 100
 	for(d = 0 ; d < 10; d = d+10+(7/3))
-	    for(d = 0 ; d < 10; d = d+1) b = b +( 10)
+	    for(d = 0 ; d < 10; d = d+1)
+	        b = b +( 10)
 }
-for(d = 0 ; d < 10; d = d+1) b = b +( 10)
+for(d = 0 ; d < 10; d = d+1)
+    b = b -  (((((-10))) + c/d*a))
 }
