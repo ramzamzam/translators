@@ -3,21 +3,20 @@ head {
  fixed b, c, d, a
 } body {
 a = -10
-if(a==b) {
+if(!a==b) {
     b = c
     v = 100 + 1000/2*1234.34 - b
 }
-a = -b
+a = b
 b= (244324.34324234234 - 100) - 10
 read(a)
-read(b,c,d)
-if([a==b]|[b!=c]){
+read(b)
+if([a>b|b<(10-1)]|[b!=c]){
 	print(d)
+	if(c==d) {
+	    d =19
+	    read(a)
+	}
 	b = b / a * c + 100
-	for(d = 0 ; d < 10; d = d+10+(7/3))
-	    for(d = 0 ; d < 10; d = d+1)
-	        b = b +( 10)
 }
-for(d = 0 ; d < 10; d = d+1)
-    b = b -  (((((-10))) + c/d*a))
 }

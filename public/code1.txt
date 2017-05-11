@@ -1,0 +1,6 @@
+prog l1lk
+head {
+ fixed b, c, d, a
+} body {
+b= (1 - 2) - 3
+}
