@@ -2,6 +2,8 @@ prog l1lk
 head {
  fixed b, c, d, a
 } body {
+for(a=0;a<2;a=a+1)
+    c = a * 2
 a = -10
 if(!a==b) {
     b = c
