@@ -5,19 +5,20 @@ head {
 for(a=0;a<2;a=a+1)
     c = a * 2
 a = -10
+print(c)
 if(!a==b) {
     b = c
-    v = 100 + 1000/2*1234.34 - b
+    print(b)
+    v = 100 + 1000/2*4 - b
+    print(v)
 }
 a = b
+print(a)
 b= (244324.34324234234 - 100) - 10
-read(a)
-read(b)
 if([a>b|b<(10-1)]|[b!=c]){
 	print(d)
 	if(c==d) {
 	    d =19
-	    read(a)
 	}
 	b = b / a * c + 100
 }
