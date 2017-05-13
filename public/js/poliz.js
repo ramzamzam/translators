@@ -28,15 +28,22 @@ class RPNBuilder {
             '<=': (o1, o2) => o1 <= o2,
             '<': (o1, o2) => o1 < o2,
             '@': (o1) => o1 * -1,
-            'read': () => {
-
+            'read': (lex) => {
+                let val = prompt(lex.lexeme);
+                val = +val;
+                if(!isNaN(val)) {
+                    return val;
+                } else {
+                    alert('only numbers allowed');
+                    return this.operation('read', lex);
+                }
             },
             'print': (val) => console.log(val)
         };
         this.priority = {
             'if': 0, 'for': 0,
             '{': 1, '}': 1,
-            '\n': 2,
+            '\n': 2,"¶" : 2,
             'write': 3, 'read': 3,
             '=': 4,
             '(': 5, '[': 5,
@@ -53,27 +60,31 @@ class RPNBuilder {
 
         this.JMPF = {
             isJ: true,
-            JMPON: false
+            JMPON: false,
+            text : 'JMPF'
         };
 
         this.JMPT = {
             isJ: true,
-            JMPON: true
+            JMPON: true,
+            text : 'JMPT'
         };
 
         this.JMP = {
             isJ: true,
-            JMPON: 'any'
+            JMPON: 'any',
+            text : 'JMP'
         };
 
         this.labelIndex = -1;
     }
 
     saveHistory(stack, output, lexeme) {
+        // console.log({stack, output, lexeme})
         this.rpnHistory.push({
-            stack : JSON.parse(JSON.stringify(stack)),
-            output,
-            lexeme
+            stack : this.flattenOutput(stack).join(',').replace('\n', '¶'),
+            output : this.flattenOutput(output).join(',').replace('\n', '¶'),
+            lexeme : lexeme.lexeme.replace('\n', '¶')
         })
     }
 
@@ -100,7 +111,7 @@ class RPNBuilder {
             Array.prototype.push.call(stack, e);
         };
         output.push = function (e) {
-            if (e.lexeme === '\n') return;
+            if (e.lexeme === '\n' || e.lexeme === "¶") return;
             newOutput.push(e);
             Array.prototype.push.call(output, e);
         };
@@ -229,9 +240,6 @@ class RPNBuilder {
             output.push(stack.pop());
         }
         return output;
-        console.log(this.flattenOutput(output).join(' '));
-
-        console.log(insertAfterNewLine)
     }
 
 
@@ -333,11 +341,15 @@ class RPNBuilder {
             } else if (lex.isConst()) {
                 operands.push(get(lex));
                 lexIndex++;
+            } else if (lex.lexeme === 'read') {
+                let op = rpn[lexIndex - 1];
+                let value = this.operation('read', op);
+                set(op, value);
             } else if (['print'].includes(lex.lexeme)) {
                 let value = get(rpn[lexIndex - 1]);
                 this.operation(lex.lexeme, value);
                 lexIndex++;
-            } else if (['@', '!', 'read', 'print'].includes(lex.lexeme)) {
+            } else if (['@', '!'].includes(lex.lexeme)) {
                 let _op = op();
                 let value = this.operation(lex.lexeme, get(_op));
                 push(value);
@@ -414,3 +426,5 @@ class RPNBuilder {
 // console.log({rpn: builder.flattenOutput(rpn), labelsTable});
 // console.log('evaluating');
 // builder.eval(rpn, labelsTable);
+
+// module.exports = RPNBuilder;

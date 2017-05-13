@@ -1,4 +1,7 @@
 let lexTables;
+let builder;
+let rnp;
+let extracted;
 document.addEventListener("DOMContentLoaded", function(event) {
     // const editor = ace.edit('editor');
     // editor.getSession().setMode("ace/mode/javascript");
@@ -9,45 +12,65 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	if(localStorage['code-translators']) codeArea.value = localStorage['code-translators'];
 	const translateCode = document.querySelector('a#js-translate-code') ;
     const buildRPNButton = document.querySelector('a#js-build-rpn');
+    const runButton = document.querySelector('a#js-run-rpn');
 	translateCode.addEventListener('click', function(event) {
 		const code = codeArea.value;
-		const request = new XMLHttpRequest();
-		request.open('POST', '/translate', true);
-		request.setRequestHeader("Content-type", "application/json");
-
-		const formData = new FormData();
-		formData.append('code', code);
-		request.send(JSON.stringify({ code }));
-		request.onreadystatechange = function() {
-			if(request.readyState !== 4) return;
-
-			if(request.status != 200) {
-			    alert(request.response);
-			    return;
-            }
-            localStorage['code-translators'] = code;
-
-			console.log(`${request.status} : ${request.statusText}`);
-			console.log(request.response);
-			showTables(JSON.parse(request.response));
-			buildRPNButton.removeAttribute('disabled');
-		}
-	});
-    buildRPNButton.addEventListener('click', function(event) {
-        const request = new XMLHttpRequest();
-        request.open('POST', '/rpn', true);
-        request.setRequestHeader("Content-type", "application/json");
-
-        request.send();
-        request.onreadystatechange = function() {
-            if(request.readyState !== 4) return;
-
-            console.log(`${request.status} : ${request.statusText}`);
-            console.log(request.response);
-            // showTables(JSON.parse(request.response));
-            // buildRPNButton.removeAttribute('disabled');
-            showRPN(JSON.parse(request.response));
+		try {
+		    lexTables = SA(code, LA);
+            showTables(lexTables);
+            buildRPNButton.removeAttribute('disabled');
+            runButton.removeAttribute('disabled');
+		} catch(err) {
+		    alert(err.toString());
         }
+    });
+
+    runButton.addEventListener('click', function () {
+        builder.eval(extracted.rpn, extracted.labelsTable);
+    });
+	// 	const request = new XMLHttpRequest();
+	// 	request.open('POST', '/translate', true);
+	// 	request.setRequestHeader("Content-type", "application/json");
+    //
+	// 	const formData = new FormData();
+	// 	formData.append('code', code);
+	// 	request.send(JSON.stringify({ code }));
+	// 	request.onreadystatechange = function() {
+	// 		if(request.readyState !== 4) return;
+    //
+	// 		if(request.status != 200) {
+	// 		    alert(request.response);
+	// 		    return;
+     //        }
+     //        localStorage['code-translators'] = code;
+    //
+	// 		console.log(`${request.status} : ${request.statusText}`);
+	// 		console.log(request.response);
+	// 		showTables(JSON.parse(request.response));
+	// 		buildRPNButton.removeAttribute('disabled');
+	// 	}
+	// });
+    buildRPNButton.addEventListener('click', function(event) {
+        builder = new RPNBuilder(lexTables);
+        rnp = builder.build();
+        extracted = builder.extractLabels(rnp);
+        extracted.history = builder.rpnHistory;
+        showRPN(extracted);
+        // const request = new XMLHttpRequest();
+        // request.open('POST', '/rpn', true);
+        // request.setRequestHeader("Content-type", "application/json");
+        //
+        // request.send();
+        // request.onreadystatechange = function() {
+        //     if(request.readyState !== 4) return;
+        //
+        //     console.log(`${request.status} : ${request.statusText}`);
+        //     console.log(request.response);
+        //     // showTables(JSON.parse(request.response));
+        //     // buildRPNButton.removeAttribute('disabled');
+        //     showRPN(JSON.parse(request.response));
+        //
+        // }
     })
 });
 

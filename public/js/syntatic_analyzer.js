@@ -14,7 +14,7 @@ function SA(code, LA) {
 
         let tables;
         try {
-            tables = LA.analyze(code);
+            tables = LA(code);
         } catch (err) {
             //console.log(err);
             throw err;
