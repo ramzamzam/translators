@@ -16,12 +16,19 @@
 </head>
 <body>
 <div class="row">
+	<a class="btn btn-primary" id="js-translate-code">Translate</a>
+	<a class="btn btn-primary" id="js-build-rpn" disabled>RPN</a>
+	<a class="btn btn-primary" id="js-run-rpn" disabled>Run</a>
+</div>
+<div class="row">
 	<div class="form-group col-sm-6">
 	  <textarea class="form-control col-sm-4" rows="10" placeholder="<CODE>"  id="code"></textarea>
 	</div>
-	<a class="btn btn-primary" id="js-translate-code">Translate</a>
-	<a class="btn btn-primary" id="js-build-rpn" disabled>RPN</a>
-	<a class="btn btn-primary" id="js-run-rpn" disabled>RPN</a>
+</div>
+<div class="row">
+	<div class="col-sm-4">
+		<textarea id="output-area" disabled="true">OUTPUT:</textarea>
+	</div>
 </div>
 <div class="row" style="max-height: 200px;overflow: scroll">
 	<div class="js-lex-table col-sm-3"></div>

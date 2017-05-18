@@ -9,6 +9,7 @@
 
 class RPNBuilder {
     constructor(tables) {
+        this.events = {};
         this.rpnHistory = [];
         this.lexTable = tables.lexemesTable;
         this.idTable = tables.idTable;
@@ -38,7 +39,7 @@ class RPNBuilder {
                     return this.operation('read', lex);
                 }
             },
-            'print': (val) => console.log(val)
+            'print': (val) => this.events['output'] ? this.events['output'] (val) : console.log(val)
         };
         this.priority = {
             'if': 0, 'for': 0,
@@ -211,7 +212,7 @@ class RPNBuilder {
                 stack.push(current);
                 lexIndex++;
             }
-            if (current.equals('\n')) {
+            if (current.equals('\n') || current.equals('¶')) {
                 // if (newLinesLeft > 0) newLinesLeft--;
                 // if (!inIf && inForLoop && insertAfterNewLine.length && newLinesLeft === 0) {
                 //     insertAfterNewLine.pop().forEach(output.push);
@@ -345,6 +346,7 @@ class RPNBuilder {
                 let op = rpn[lexIndex - 1];
                 let value = this.operation('read', op);
                 set(op, value);
+                lexIndex++;
             } else if (['print'].includes(lex.lexeme)) {
                 let value = get(rpn[lexIndex - 1]);
                 this.operation(lex.lexeme, value);
@@ -415,6 +417,9 @@ class RPNBuilder {
             isConst: () => false
         }
 
+    }
+    on(eventName, fun) {
+        this.events[eventName] = fun;
     }
 }
 
