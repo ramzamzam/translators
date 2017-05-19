@@ -2,15 +2,11 @@
  * Created by ram on 10.05.17.
  */
 
-// const LA = require('./lexical_analyzer');
-// const lexemes = require('./lexemes.json');
-// const SA = require('./syntatic_analyzer');
-//
-
 class RPNBuilder {
     constructor(tables) {
         this.events = {};
         this.rpnHistory = [];
+        this.evalHistory = [];
         this.lexTable = tables.lexemesTable;
         this.idTable = tables.idTable;
         this.constTable = tables.constTable; // TODO check
@@ -32,19 +28,19 @@ class RPNBuilder {
             'read': (lex) => {
                 let val = prompt(lex.lexeme);
                 val = +val;
-                if(!isNaN(val)) {
+                if (!isNaN(val)) {
                     return val;
                 } else {
                     alert('only numbers allowed');
                     return this.operation('read', lex);
                 }
             },
-            'print': (val) => this.events['output'] ? this.events['output'] (val) : console.log(val)
+            'print': (val) => this.events['output'] ? this.events['output'](val) : console.log(val)
         };
         this.priority = {
             'if': 0, 'for': 0,
             '{': 1, '}': 1,
-            '\n': 2,"¶" : 2,
+            '\n': 2, "¶": 2,
             'write': 3, 'read': 3,
             '=': 4,
             '(': 5, '[': 5,
@@ -62,19 +58,19 @@ class RPNBuilder {
         this.JMPF = {
             isJ: true,
             JMPON: false,
-            text : 'JMPF'
+            text: 'JMPF'
         };
 
         this.JMPT = {
             isJ: true,
             JMPON: true,
-            text : 'JMPT'
+            text: 'JMPT'
         };
 
         this.JMP = {
             isJ: true,
             JMPON: 'any',
-            text : 'JMP'
+            text: 'JMP'
         };
 
         this.labelIndex = -1;
@@ -83,9 +79,9 @@ class RPNBuilder {
     saveHistory(stack, output, lexeme) {
         // console.log({stack, output, lexeme})
         this.rpnHistory.push({
-            stack : this.flattenOutput(stack).join(',').replace('\n', '¶'),
-            output : this.flattenOutput(output).join(',').replace('\n', '¶'),
-            lexeme : lexeme.lexeme.replace('\n', '¶')
+            stack: this.flattenOutput(stack).join(',').replace('\n', '¶'),
+            output: this.flattenOutput(output).join(',').replace('\n', '¶'),
+            lexeme: lexeme.lexeme.replace('\n', '¶')
         })
     }
 
@@ -213,17 +209,7 @@ class RPNBuilder {
                 lexIndex++;
             }
             if (current.equals('\n') || current.equals('¶')) {
-                // if (newLinesLeft > 0) newLinesLeft--;
-                // if (!inIf && inForLoop && insertAfterNewLine.length && newLinesLeft === 0) {
-                //     insertAfterNewLine.pop().forEach(output.push);
-                //     if (!insertAfterNewLine.length) inForLoop = false;
-                // }
-                //
-                // if (forLoopCount > 0 && insertAfterNewLine.length && newLinesLeft === 0) {
-                //     insertAfterNewLine.forEach(i => i.forEach(output.push));
-                // }
-                //
-                if (inForLoop /*&& (!inIf)*/) {
+                if (inForLoop) {
                     newLinesCount++;
                     if (newLinesCount !== forLoopCount) {
                         insertAfterNewLine.pop().forEach(output.push);
@@ -304,6 +290,22 @@ class RPNBuilder {
         return value;
     }
 
+    saveEvaluationStack(operands, lexIndex, lexeme) {
+        operands = operands.reduce((acc, o) => {
+
+            if (o.lexeme) return acc ? acc + ' ' + o.lexeme : o.lexeme;
+            if (!isNaN(+o)) return acc ? acc + ' ' + o : o.toString();
+        }, '');
+        if (lexeme.lexeme) lexeme = lexeme.lexeme;
+        if (lexeme.isLabel) lexeme = lexeme.label;
+        this.evalHistory.push({operands, lexIndex, lexeme, values : this.getCurrentValues()});
+    }
+
+    getCurrentValues() {
+        return this.idTable.map((c) => {
+            return  c.lexeme + ' : ' + c.value;
+        });
+    }
 
     eval(rpn, labels, startIndex) {
         this.setConstValues(rpn);
@@ -314,7 +316,9 @@ class RPNBuilder {
         let push = (o) => operands.push(o);
         let operators = Object.keys(this.operations);
         let lexIndex = 0;
+        // this.saveEvaluationStack(operands, rpn.slice(lexIndex));
         while (lexIndex < rpn.length) {
+            this.saveEvaluationStack(operands, lexIndex, rpn[lexIndex]);
             let lex = rpn[lexIndex];
             if (lex.isLabel) {
                 const destIndex = labels[lex.label];
@@ -332,8 +336,8 @@ class RPNBuilder {
                 }
                 operands = [];
             } else if (lex.equals('=')) {
-                let val = get(operands[operands.length - 1]);
-                let id = operands[operands.length - 2];
+                let val = get(operands.pop());
+                let id = operands.pop();
                 set(id, val);
                 lexIndex++;
             } else if (lex.isId()) {
@@ -343,12 +347,12 @@ class RPNBuilder {
                 operands.push(get(lex));
                 lexIndex++;
             } else if (lex.lexeme === 'read') {
-                let op = rpn[lexIndex - 1];
+                let op = operands.pop();
                 let value = this.operation('read', op);
                 set(op, value);
                 lexIndex++;
             } else if (['print'].includes(lex.lexeme)) {
-                let value = get(rpn[lexIndex - 1]);
+                let value = get(operands.pop());
                 this.operation(lex.lexeme, value);
                 lexIndex++;
             } else if (['@', '!'].includes(lex.lexeme)) {
@@ -380,13 +384,15 @@ class RPNBuilder {
             if (l.lexeme) return l.lexeme;
             if (l.isJ) {
                 if (l.JMPON === 'any') return 'JMP';
-                if (l.JMPON) return 'JMPT'
+                if (l.JMPON) return 'JMPT';
                 else return 'JMPF'
             }
             if (l.isLabel) return l.label;
 
         });
     }
+
+    // output
 
     lessOrEqual(lex, lex1) {
         if (lex1.lexeme === '(') return false;
@@ -418,6 +424,7 @@ class RPNBuilder {
         }
 
     }
+
     on(eventName, fun) {
         this.events[eventName] = fun;
     }

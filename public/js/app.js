@@ -25,8 +25,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     runButton.addEventListener('click', function () {
         outputArea.value = '';
         builder.eval(extracted.rpn, extracted.labelsTable);
-
+        showEvalHistory({history : builder.evalHistory});
     });
+
     buildRPNButton.addEventListener('click', function(event) {
         builder = new RPNBuilder(lexTables);
         rnp = builder.build();
@@ -117,4 +118,30 @@ function showRPN(data) {
 
     const historyContainer = document.querySelector('.js-poliz-history');
     historyContainer.innerHTML = historyTemplate({history : data.history});
+}
+
+
+const evalHistoryTemplate = Handlebars.compile(`
+<h3>Evaluation history</h3>
+<table class="table table-striped">
+<thead>
+    <tr><td>LexIndex</td><td>Current</td><td>Operands</td><td>Values</td></tr>
+</thead>
+<tbody>
+{{#each history}}
+      <tr><td>{{lexIndex}}</td><td>{{lexeme}}</td><td>{{operands}}</td>
+        <td>
+            {{#each values}}
+                {{this}}<br>
+            {{/each}}
+         </td>
+      </tr>
+{{/each}}
+</tbody>
+</table>
+`);
+
+function showEvalHistory(data) {
+    const evalHistoryContainer = document.querySelector('.js-eval-history');
+    evalHistoryContainer.innerHTML = evalHistoryTemplate(data);
 }
